@@ -32,9 +32,9 @@ flowchart TD
     end
 
     %% ── ORG FLOW ──
-    DASH -->|"Manage orgs"| ORG_D
-    subgraph ORG_FLOW["Organization Management"]
-        ORG_D["Screen 2: Org Details\nBasic Info · Limits · Settings\nTabs: Sites | Users | Alerts | Billing"]:::org
+    DASH -->|"Manage org"| ORG_D
+    subgraph ORG_FLOW["Organization"]
+        ORG_D["Screen 2: Org Details\nName · ID · Contact · Address"]:::org
     end
 
     %% ── SITE FLOW ──
@@ -106,54 +106,12 @@ flowchart TD
 
 ### Screen 2 — Organization Details
 
-```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '13px', 'lineColor': '#455A64' }}}%%
-flowchart TD
-    subgraph BASIC["Basic Info"]
-        B1["Org Name"]:::purple --> B2["Tenant ID"]:::purple --> B3["Subscription Tier"]:::purple --> B4["Contact Email/Phone"]:::purple --> B5["Address · Logo URL"]:::purple
-    end
-
-    BASIC -->|"Section"| LIMITS
-
-    subgraph LIMITS["Limits"]
-        L1["Max Cameras"]:::blue --> L2["Max Users"]:::blue --> L3["Retention Days"]:::blue
-    end
-
-    LIMITS -->|"Section"| SETTINGS
-
-    subgraph SETTINGS["Settings"]
-        S1["Settings JSON"]:::teal --> S2["Status Toggle"]:::teal
-    end
-
-    SETTINGS -->|"Tab navigation"| TABS
-
-    subgraph TABS["Tabs → Related Data"]
-        T1["Sites\n(site_id = org)"]:::tabSite
-        T2["Users\n(org_id = org)"]:::tabUser
-        T3["Alert Rules\n(org_id = org)"]:::tabAlert
-        T4["Billing\n(subscription)"]:::tabBill
-    end
-
-    T1 -->|"Navigate"| S4["Screen 4:\nSite Details"]:::navSite
-    T2 -->|"Navigate"| S13["Screen 13:\nUser List"]:::navUser
-    T3 -->|"Navigate"| S11["Screen 11:\nAlert Rules"]:::navAlert
-
-    classDef purple fill:#6A1B9A,stroke:#4A148C,color:#fff,stroke-width:2px
-    classDef blue fill:#1565C0,stroke:#0D47A1,color:#fff,stroke-width:2px
-    classDef teal fill:#00695C,stroke:#004D40,color:#fff,stroke-width:2px
-    classDef tabSite fill:#2E7D32,stroke:#1B5E20,color:#fff,stroke-width:2px
-    classDef tabUser fill:#00695C,stroke:#004D40,color:#fff,stroke-width:2px
-    classDef tabAlert fill:#D32F2F,stroke:#B71C1C,color:#fff,stroke-width:2px
-    classDef tabBill fill:#F57F17,stroke:#E65100,color:#fff,stroke-width:2px
-    classDef navSite fill:#2E7D32,stroke:#1B5E20,color:#fff,stroke-width:2px
-    classDef navUser fill:#00695C,stroke:#004D40,color:#fff,stroke-width:2px
-    classDef navAlert fill:#D32F2F,stroke:#B71C1C,color:#fff,stroke-width:2px
-
-    style BASIC fill:#F3E5F5,stroke:#9C27B0,color:#000,stroke-width:2px
-    style LIMITS fill:#E3F2FD,stroke:#1565C0,color:#000,stroke-width:2px
-    style SETTINGS fill:#E0F2F1,stroke:#00695C,color:#000,stroke-width:2px
-    style TABS fill:#FFF9C4,stroke:#F57F17,color:#000,stroke-width:2px
-```
+| Field | Description |
+|-------|-------------|
+| **Org Name** | Organization display name |
+| **ID** | Unique organization identifier |
+| **Contact** | Email / Phone |
+| **Address** | Physical address |
 
 ---
 

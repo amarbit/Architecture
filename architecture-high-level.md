@@ -194,7 +194,7 @@ flowchart LR
 
     LOGIN -->|"Authenticate"| DASH["Dashboard\n(Screen 15)"]:::dash
 
-    DASH -->|"Manage orgs"| ORG_D["Org Details\n(Screen 2)"]:::org
+    DASH -->|"Manage org"| ORG_D["Org Details\nName · ID · Contact\n(Screen 2)"]:::org
 
     ORG_D -->|"View sites"| SITE_D["Site Details\n(Screen 4)"]:::site
 
