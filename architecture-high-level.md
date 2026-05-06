@@ -25,16 +25,17 @@ flowchart TB
     PG[("PostgreSQL\nCamera Registry\nSource of Truth")]:::infra
     RD[("Redis\nMessage Bus\nPub/Sub")]:::infra
 
-    %% ── LAYER 2: DATA PLANE ──
-    POD1["Pod 1 — DeepStream\nGPU 0 (L40S)\n50 streams"]:::gpu
-    POD2["Pod 2 — DeepStream\nGPU 1 (L40S)\n50 streams"]:::gpu
-    PODN["Pod N — DeepStream\nGPU N-1\n50 streams"]:::gpu
+    %% ── LAYER 2: DATA PLANE (single pod, scales via K8s) ──
+    POD["DeepStream Pod\nGPU (L40S/T4/A100)\n50 streams/pod\n⟳ Scale: Kubernetes"]:::gpu
 
-    %% ── LAYER 3: OUTPUT ──
-    KAFKA["Apache Kafka\nAnalytics Events\n(JSON)"]:::output
-    S3["S3 / MinIO\nRecordings (.mp4)\nSnapshots"]:::output
-    RTMP["RTMP Server\nHLS / DASH\nLive Streams"]:::output
-    PROM["Prometheus\nGPU/CPU Metrics\nPod Health"]:::output
+    %% ── LAYER 3: OUTPUT (grouped) ──
+    subgraph OUTPUT_LAYER["Output & Infrastructure Services"]
+        direction LR
+        PROM["Prometheus\nGPU/CPU Metrics\nPod Health"]:::output
+        RTMP["RTMP Server\nHLS / DASH\nLive Streams"]:::output
+        S3["S3 / MinIO\nRecordings (.mp4)\nSnapshots"]:::output
+        KAFKA["Apache Kafka\nAnalytics Events\n(JSON)"]:::output
+    end
 
     %% ── CONSUMERS ──
     DASH["Admin Dashboard\nReact / Vue\n15 Screens"]:::frontend
@@ -71,38 +72,23 @@ flowchart TB
     %% WDM → K8s
     WDM -->|"Scale replicas"| K8S
 
-    %% K8s → Pods
-    K8S -->|"Provision\nnew GPU pod"| POD1
-    K8S -->|"Provision\nnew GPU pod"| POD2
-    K8S -->|"Provision\nnew GPU pod"| PODN
+    %% K8s → Pod
+    K8S -->|"Provision\nGPU pod"| POD
 
-    %% Watchdog → DB + Pods
+    %% Watchdog → DB + Pod
     WDG -->|"SELECT unclaimed\ncameras"| PG
-    WDG -->|"POST /stream/add\nREST :9010"| POD1
-    WDG -->|"POST /stream/add\nREST :9010"| POD2
-    WDG -->|"POST /stream/add\nREST :9010"| PODN
+    WDG -->|"POST /stream/add\nREST :9010"| POD
 
-    %% Cameras → Pods (RTSP)
-    CAM1 -.->|"RTSP\nStream"| POD1
-    CAM2 -.->|"RTSP\nStream"| POD1
-    CAM3 -.->|"RTSP\nStream"| POD2
+    %% Cameras → Pod (RTSP)
+    CAM1 -.->|"RTSP\nStream"| POD
+    CAM2 -.->|"RTSP\nStream"| POD
+    CAM3 -.->|"RTSP\nStream"| POD
 
-    %% Pods → Outputs
-    POD1 -->|"Analytics\nJSON"| KAFKA
-    POD2 -->|"Analytics\nJSON"| KAFKA
-    PODN -->|"Analytics\nJSON"| KAFKA
-
-    POD1 -->|"Recordings\n.mp4"| S3
-    POD2 -->|"Recordings\n.mp4"| S3
-    PODN -->|"Recordings\n.mp4"| S3
-
-    POD1 -->|"Live\nFLV"| RTMP
-    POD2 -->|"Live\nFLV"| RTMP
-    PODN -->|"Live\nFLV"| RTMP
-
-    POD1 -.->|"Metrics"| PROM
-    POD2 -.->|"Metrics"| PROM
-    PODN -.->|"Metrics"| PROM
+    %% Pod → Outputs
+    POD -->|"Analytics\nJSON"| KAFKA
+    POD -->|"Recordings\n.mp4"| S3
+    POD -->|"Live\nFLV"| RTMP
+    POD -.->|"Metrics"| PROM
 
     %% Outputs → Consumers
     KAFKA -->|"Events feed"| DASH
@@ -121,6 +107,8 @@ flowchart TB
     classDef output fill:#E65100,stroke:#E65100,color:#fff,stroke-width:2px
     classDef frontend fill:#00695C,stroke:#00695C,color:#fff,stroke-width:2px
     classDef k8s fill:#1565C0,stroke:#1565C0,color:#fff,stroke-width:2px
+
+    style OUTPUT_LAYER fill:#FFF3E0,stroke:#E65100,color:#000,stroke-width:2px
 ```
 
 ---
