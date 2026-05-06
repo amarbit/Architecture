@@ -37,11 +37,15 @@ flowchart TB
         KAFKA["Apache Kafka\nAnalytics Events\n(JSON)"]:::output
     end
 
-    %% ── CONSUMERS ──
-    DASH["Admin Dashboard\nReact / Vue\n15 Screens"]:::frontend
-    ALERT["Alert Manager\nSMS · WhatsApp\nEmail · Webhook"]:::frontend
-    PLAYER["Video Player\nWebRTC\nLive + Recorded"]:::frontend
-    GRAFANA["Grafana\nMonitoring\nDashboards"]:::frontend
+    %% ── CONSUMERS (unified dashboard) ──
+    subgraph DASHBOARD["Admin Dashboard — React / Vue"]
+        direction LR
+        DASH_VIEW["Dashboard\nOverview · Charts\nMap · Live Feed"]:::frontend
+        KPIS["KPIs\nCameras · Streams\nEvents · Alerts"]:::frontend
+        ALERT["Alert Manager\nSMS · WhatsApp\nEmail · Webhook"]:::frontend
+        PLAYER["Video Display\nWebRTC\nLive + Recorded"]:::frontend
+        METRICS["Metrics\nMonitoring\nGPU · CPU · Pods"]:::frontend
+    end
 
     %% ── K8s ──
     K8S["Kubernetes\nAPI Server"]:::k8s
@@ -90,15 +94,16 @@ flowchart TB
     POD -->|"Live\nFLV"| RTMP
     POD -.->|"Metrics"| PROM
 
-    %% Outputs → Consumers
-    KAFKA -->|"Events feed"| DASH
+    %% Outputs → Dashboard
+    KAFKA -->|"Events feed"| DASH_VIEW
     KAFKA -->|"Alert trigger"| ALERT
     S3 -->|"Video clips"| PLAYER
     RTMP -->|"Live stream"| PLAYER
-    PROM -->|"Metrics"| GRAFANA
+    PROM -->|"Metrics"| METRICS
+    KAFKA -->|"KPI data"| KPIS
 
     %% Dashboard → DB
-    DASH -->|"REST API\nCRUD"| PG
+    DASH_VIEW -->|"REST API\nCRUD"| PG
 
     classDef cam fill:#0D47A1,stroke:#0D47A1,color:#fff,stroke-width:2px
     classDef ctrl fill:#1B5E20,stroke:#1B5E20,color:#fff,stroke-width:2px
@@ -109,6 +114,7 @@ flowchart TB
     classDef k8s fill:#1565C0,stroke:#1565C0,color:#fff,stroke-width:2px
 
     style OUTPUT_LAYER fill:#FFF3E0,stroke:#E65100,color:#000,stroke-width:2px
+    style DASHBOARD fill:#E0F2F1,stroke:#00695C,color:#000,stroke-width:2px
 ```
 
 ---
